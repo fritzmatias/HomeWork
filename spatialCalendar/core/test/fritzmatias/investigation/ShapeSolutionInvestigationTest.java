@@ -30,7 +30,7 @@ import org.junit.Assert;
  * @since Version: 1
  */
 @RunWith(Parameterized.class)
-public class ShapeSolutionTest {
+public class ShapeSolutionInvestigationTest {
 	@Parameter(0)
 	public String testName;
 	@Parameter(1)
