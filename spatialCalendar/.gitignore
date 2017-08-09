@@ -1,0 +1,10 @@
+.settings
+.classpath
+.springBeans
+.project
+.mvn
+target
+.settings/
+root/.project
+root/.settings/org.eclipse.core.resources.prefs
+.settings/org.eclipse.core.resources.prefs
