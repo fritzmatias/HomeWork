@@ -1,4 +1,4 @@
-#Double accuracy Tests
+# Double accuracy Tests
 
 The tests in this folder, try to expose the common failures with floating point usage and the related accuracy operation problem.
 Is expected, that most of the test fail. The idea, is make evident what is a mistake.
@@ -48,9 +48,13 @@ This condition (-0.0 != 0.0) is tested under ==, equals and compareTo, which is 
 #### operations
 The same problems as natural doubles. 
 
-##See
+## See
 To understand the concepts behind floating point problems
+
 https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+
 https://en.wikipedia.org/wiki/Signed_zero
+
 https://en.wikipedia.org/wiki/Floating-point_arithmetic#Rounding_modes
+
 https://en.wikipedia.org/wiki/Endianness

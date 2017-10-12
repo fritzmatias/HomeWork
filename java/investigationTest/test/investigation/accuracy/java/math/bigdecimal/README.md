@@ -1,4 +1,4 @@
-#BigDecimal Accuracy Tests
+# BigDecimal Accuracy Tests
   
 The tests in this folders, try to expose the common failures with BigDecimal usage and the related accuracy operation problems.
 Is expected, that most of the test fail. The idea, is make evident what is a mistake.
@@ -45,7 +45,7 @@ Resolves the equality comparation for the same value. Is like to trim the zeros 
 But, the use of compareTo, don't resolve the scale of irrational fractions comparations.
 
 
-##See
+## See
 [BigDecimal](https://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html)
 
 To understand the concepts behind floating point problems
