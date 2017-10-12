@@ -7,6 +7,8 @@
  */
 package investigation.accuracy.java.math.bigdecimal.operation;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigDecimal;
 
 import org.junit.Assert;
@@ -49,4 +51,25 @@ public class BigDecimalAccuracyMultiplyInvestigationTest {
 		Assert.assertEquals("Object Equals", expected, actual); // false
 	}
 
+	/**
+	 * <p>
+	 * The BigDecimal on multiplication calculates different values when the
+	 * decimals are > 16 positions.<br>
+	 * </p>
+	 * 
+	 * @author matias
+	 * @since Version: 1
+	 */
+	@Test
+	public void multiplicationAccuracyBigDecimalDouble() {
+		double tolerance = Math.pow(0.1, 7); // <6 OK
+		double r = Math.pow(10, 10);
+		double t = 1; // Radians
+
+		double x = r * Math.cos(t);
+		BigDecimal cos = BigDecimal.valueOf(Math.cos(t));
+		assertEquals(Math.cos(t), cos.doubleValue(), tolerance); // OK
+		BigDecimal bdX = BigDecimal.valueOf(r).multiply(cos);
+		assertEquals(x, bdX.doubleValue(), tolerance); // fail 
+	}
 }

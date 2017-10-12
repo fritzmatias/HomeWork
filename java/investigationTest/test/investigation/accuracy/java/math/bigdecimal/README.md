@@ -17,6 +17,7 @@ When an assignation is defined as '1/10', because no cast to double or double va
 ##### Fractions
 The initialization of fractions, via double and division of BigDecimal gives different results at the last double precision value. So, some precision strategy, should be taken.
 The value obtained from a division of integers will keep the same scale related to an integer value. That is very tricky.
+The multiplication of floating point values under the BigDecimal could not represent the same value as a double multiplication.(Check the multiplication test of BigDecimals)
 
 ##### Scale & Presicion 
 The construction of fractions by the use of division method is no trivial, the scale used implicit or explicitly is determinant. The precision is the amount of digits which defines the unscaled value. The Scale, is the negative exponent of 10, related to define how much numbers -from left to right- are the fractional part.
