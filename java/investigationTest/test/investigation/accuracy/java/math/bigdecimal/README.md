@@ -27,30 +27,33 @@ For example,
 	- BigDecimal.valueOf(1).setScale(3), will be a unscaled value:= 100, scale:=3, precision:=3,
  
 ##### Reduction & inflation
-	- The reduction by round method, is limited to the precision value >= 1.
-	- Other form of reduction is via the setScale, (this means, changing the negative exponent of 10 related to the fraction part)  - The behavior is similar to the round method.
-	- No inflation is possible after a reduction, because the unscaled value is modified. 
+- The reduction by round method, is limited to the precision value >= 1.
+- Other form of reduction is via the setScale, (this means, changing the negative exponent of 10 related to the fraction part)  - The behavior is similar to the round method.
+- No inflation is possible after a reduction, because the unscaled value is modified. 
 
 #### Evaluations ==, Equals & CompareTo
 The behavior between Equals and CompareTo is different. In particular with different scales. 
 CompareTo fix bugs related to the use of equals. But, not fix the tolerance required to some rounding criteria.
 
 ##### Equals Problems
-	- 0 != 0.0 -> fixed with compareTo
-	- BigDecimal.ZERO != 0.0
-	- Irrational Fractions != by Scale 
+- 0 != 0.0 -> fixed with compareTo
+- BigDecimal.ZERO != 0.0
+- Irrational Fractions != by Scale 
 
 ##### CompareTo
 Resolves the equality comparation for the same value. Is like to trim the zeros between both objects. 
 But, the use of compareTo, don't resolve the scale of irrational fractions comparations.
 
 
-
 ##See
 [BigDecimal](https://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html)
 
 To understand the concepts behind floating point problems
+
 https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+	
 https://en.wikipedia.org/wiki/Signed_zero
+	
 https://en.wikipedia.org/wiki/Floating-point_arithmetic#Rounding_modes
+
 https://en.wikipedia.org/wiki/Endianness
