@@ -5,10 +5,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -22,6 +25,32 @@ public class WordCounterDocumentExecutor implements Callable<WordCounterDocument
 
 	public WordCounterDocumentExecutor(WordCounterDocumentRequest request) {
 		this.request = request;
+	}
+
+	/**
+	 * <p>
+	 * Creates a new the {@linkplain FutureTask} for this {@code request}.
+	 * </p>
+	 * @author matias
+	 * @since Version: 1
+	 * @param request
+	 * @return a new instance of the Executor.
+	 */
+	public static WordCounterDocumentExecutor createInstance(WordCounterDocumentRequest request) {
+		return new WordCounterDocumentExecutor(request);
+	}
+
+	/**
+	 * <p>
+	 * Creates a new {@linkplain FutureTask} for this {@code request}.
+	 * </p>
+	 * @author matias
+	 * @since Version: 1
+	 * @param request
+	 * @return a new instance of {@linkplain FutureTask}
+	 */
+	public static FutureTask<WordCounterDocumentResult> createFutureTask(WordCounterDocumentRequest request) {
+		return new FutureTask<WordCounterDocumentResult>(createInstance(request));
 	}
 
 	private WordCounterDocumentResult identifyAndCountWords() {
@@ -38,9 +67,9 @@ public class WordCounterDocumentExecutor implements Callable<WordCounterDocument
 				totalWords += x.getValue();
 				totalChars += x.getValue() * x.getKey().length();
 			}
-			iset=subsetOfFirst(iset, request.getMaxTopWords());
+			ImmutableSortedSet<Map.Entry<String, Integer>> iset2 = subsetOfFirst(iset, request.getMaxTopWords());
 
-			WordCounterDocumentResultImp result = new WordCounterDocumentResultImp(request, iset, totalWords,
+			WordCounterDocumentResultImp result = new WordCounterDocumentResultImp(request, iset2, totalWords,
 					totalChars);
 			return result;
 		} catch (Exception e) {
@@ -58,27 +87,30 @@ public class WordCounterDocumentExecutor implements Callable<WordCounterDocument
 
 	private static ImmutableSortedSet<Map.Entry<String, Integer>> subsetOfFirst(
 			ImmutableSortedSet<Entry<String, Integer>> iset, int maxTopWords) throws IOException {
+		List<Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>();
+		// Forcing the subset with the local order and changing to String natural order.
 		if (iset != null && maxTopWords != 0 && iset.size() > maxTopWords) {
-			UnmodifiableIterator<Map.Entry<String, Integer>> it = iset.iterator();
-			Map.Entry<String, Integer> fromElement = it.next();
-			Map.Entry<String, Integer> toElement = it.next();
-			for (int i = 1; it.hasNext() && i < maxTopWords; i++) {
-				toElement = it.next();
+			for (UnmodifiableIterator<Map.Entry<String, Integer>> it = iset.iterator(); it.hasNext()
+					&& list.size() < maxTopWords;) {
+				Map.Entry<String, Integer> toElement = it.next();
+				list.add(toElement);
 			}
-			return iset.subSet(fromElement, true, toElement, true);
+			return ImmutableSortedSet.<Entry<String, Integer>>copyOf((a, b) -> a.getKey().compareTo(b.getKey()),
+					list);
 		}
 		return iset;
 	}
 
 	/**
 	 * <p>
+	 * File Reading & Sorted set building.
 	 * </p>
 	 * 
 	 * @author matias
 	 * @since Version: 1
 	 * @param reader
 	 * @param wordDelimeterPattern
-	 * @return
+	 * @return a new {@link ImmutableSortedSet}
 	 * @throws IOException
 	 */
 	public static ImmutableSortedSet<Map.Entry<String, Integer>> identifyAndCountWords(Reader reader,
@@ -89,6 +121,9 @@ public class WordCounterDocumentExecutor implements Callable<WordCounterDocument
 			String line;
 			Map<String, Integer> map = new HashMap<String, Integer>();
 			while ((line = br.readLine()) != null) {
+				if (line.length() == 0) {
+					continue;
+				}
 				String[] words = wordDelimeterPattern.split(line);
 				for (int i = 0; i < words.length; i++) {
 					String key = words[i];
@@ -103,7 +138,7 @@ public class WordCounterDocumentExecutor implements Callable<WordCounterDocument
 			}
 			br.close();
 			ImmutableSortedSet<Entry<String, Integer>> imap = ImmutableSortedSet.<Map.Entry<String, Integer>>copyOf(
-					((a, b) -> a.getValue()==b.getValue()?1:b.getValue() - a.getValue()), map.entrySet());
+					((a, b) -> a.getValue() == b.getValue() ? 1 : b.getValue() - a.getValue()), map.entrySet());
 			return imap;
 		} catch (Exception e) {
 			throw e;

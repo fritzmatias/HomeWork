@@ -30,7 +30,7 @@ public class WordCounterDocumentExecutorTest {
 	@Test
 	public void test() {
 		File file = new File(this.getClass().getClassLoader().getResource("text.txt").getFile());
-		Pattern pattern = Pattern.compile(" ");
+		Pattern pattern = Pattern.compile("[ ]|^$");
 		int maxTopWords = 0;
 		WordCounterDocumentRequest request = null;
 		try {
@@ -40,12 +40,12 @@ public class WordCounterDocumentExecutorTest {
 			Assert.fail();
 		}
 		FutureTask<WordCounterDocumentResult> futureTask1;
-		futureTask1 = new FutureTask<WordCounterDocumentResult>(new WordCounterDocumentExecutor(request));
+		futureTask1 = WordCounterDocumentExecutor.createFutureTask(request);
 
 		ExecutorService executor = Executors.newFixedThreadPool(2);
 		executor.execute(futureTask1);
 
-		while (true) {
+		while (!futureTask1.isDone()) {
 			try {
 				if (futureTask1.isDone()) {
 					System.out.println("Done");
@@ -66,6 +66,47 @@ public class WordCounterDocumentExecutorTest {
 			}
 		}
 
+		try {
+			WordCounterDocumentResult result = futureTask1.get();
+			System.out.println("Chars: " + result.getTotalChars());
+			System.out.println("Words: " + result.getTotalWords());
+			System.out.println("Set: " + result.getWordSet());
+			Assert.assertEquals(7, result.getTotalWords());
+			Assert.assertEquals(28, result.getTotalChars());
+		} catch (InterruptedException e) {
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
 	}
+	
+	@Test
+	public void testSinchonous() {
+		File file = new File(this.getClass().getClassLoader().getResource("text.txt").getFile());
+		Pattern pattern = Pattern.compile("[ ]|^$");
+		int maxTopWords = 3;
 
+		WordCounterDocumentRequest request = null;
+		try {
+			// decupling constructor
+			request = WordCounterDocumentExecutor.request(file, pattern, maxTopWords); 
+			
+			// instantiation & call
+			WordCounterDocumentResult result = WordCounterDocumentExecutor.createInstance(request).call(); 
+			
+			System.out.println("Chars: " + result.getTotalChars());
+			System.out.println("Words: " + result.getTotalWords());
+			System.out.println("Set: " + result.getWordSet());
+			Assert.assertEquals(7, result.getTotalWords());
+			Assert.assertEquals(28, result.getTotalChars());
+			Assert.assertEquals(3, result.getWordSet().size());
+
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			Assert.fail();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+	
+	}
 }
