@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
@@ -59,7 +58,7 @@ public class WordCounterDocumentExecutor implements Callable<WordCounterDocument
 
 	private static ImmutableSortedSet<Map.Entry<String, Integer>> subsetOfFirst(
 			ImmutableSortedSet<Entry<String, Integer>> iset, int maxTopWords) throws IOException {
-		if (iset != null && iset.size() > maxTopWords) {
+		if (iset != null && maxTopWords != 0 && iset.size() > maxTopWords) {
 			UnmodifiableIterator<Map.Entry<String, Integer>> it = iset.iterator();
 			Map.Entry<String, Integer> fromElement = it.next();
 			Map.Entry<String, Integer> toElement = it.next();
@@ -96,6 +95,7 @@ public class WordCounterDocumentExecutor implements Callable<WordCounterDocument
 					Integer count = 0;
 					if ((count = map.get(key)) == null) {
 						map.put(key.trim(), 1);
+						continue;
 					}
 					count++;
 					map.put(key.trim(), count);
@@ -103,7 +103,7 @@ public class WordCounterDocumentExecutor implements Callable<WordCounterDocument
 			}
 			br.close();
 			ImmutableSortedSet<Entry<String, Integer>> imap = ImmutableSortedSet.<Map.Entry<String, Integer>>copyOf(
-					((a, b) -> a.getValue() - b.getValue()), map.entrySet());
+					((a, b) -> a.getValue()==b.getValue()?1:b.getValue() - a.getValue()), map.entrySet());
 			return imap;
 		} catch (Exception e) {
 			throw e;
