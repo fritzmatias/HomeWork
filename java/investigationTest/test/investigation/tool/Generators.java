@@ -9,7 +9,7 @@ import org.junit.Test;
  * @author matias
  *
  */
-public final class Generator {
+public final class Generators {
 	/**
 	 * Not Deterministic generator. Uses Math.random to generate the values
 	 * 

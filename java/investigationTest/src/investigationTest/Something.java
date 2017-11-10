@@ -9,11 +9,14 @@ import java.io.Serializable;
  *
  */
 public class Something implements Serializable {
-	private static final long serialVersionUID = -1104520743404240744L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2291995680262317065L;
 	final public String key;
 	final public int value;
 
-	Something(String key, int value) {
+	public Something(String key, int value) {
 		this.key = key;
 		this.value = value;
 	}
