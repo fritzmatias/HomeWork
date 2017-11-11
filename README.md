@@ -14,17 +14,39 @@ i.e:
 * ...\\_ proj2          (remoteBranchName: folder2-proj2)
 * \\_ folder3
 
-#### For reading
-* git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
+#### For new projects
+* git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
 
 > i.e.: 
 
 ``` 
-remoteBranchName=ejercicios-java-newJavaProjectTemplate;\
+remoteBranchName=ejercicios-java;\
 projectPath=https://github.com/fritzmatias/ejercicios.git;\
-git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
+newProjectName=DocumentReader\
+git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
+```
+* git push --set-upstream origin ${remoteBranchName}-${newProjectName}
+
+> i.e.: 
+
+``` 
+remoteBranchName=ejercicios-java-DocumentReader;\
+projectPath=https://github.com/fritzmatias/ejercicios.git;\
+newProjectName=DocumentReader\
+git push --set-upstream origin ${remoteBranchName}-${newProjectName}
 ```
 
+
+#### For reading
+* git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
+
+> i.e.: 
+
+``` 
+remoteBranchName=ejercicios-java-DocumentReader;\
+projectPath=https://github.com/fritzmatias/ejercicios.git;\
+git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
+```
 
 #### For Modify
 * (after actions for reading)
