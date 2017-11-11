@@ -1,14 +1,15 @@
 # How To work with my sub projects structure
 i.e:
- ejercicios (git-project)
- \_ folder1
-     \_ proj1  		(remoteBranchName: folder1-proj1)
-     \_ proj2  		(remoteBranchName: folder1-proj2)
- \_ folder2
-      \_ folder1
-            \_ proj1  	(remoteBranchName: folder2-folder1-proj1)
-      \_ proj2 		(remoteBranchName: folder2-proj2)
- \_ folder3 
+
+ - ejercicios (git-project)
+ - \_ folder1
+ -    \_ proj1  		(remoteBranchName: folder1-proj1)
+ - 	  \_ proj2  		(remoteBranchName: folder1-proj2)
+ - \_ folder2
+ -     \_ folder1
+ -           \_ proj1  	(remoteBranchName: folder2-folder1-proj1)
+ -     \_ proj2 		(remoteBranchName: folder2-proj2)
+ - \_ folder3 
 
 #### For reading
  git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
