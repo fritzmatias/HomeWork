@@ -1,18 +1,30 @@
+# check out 
+For a new Java Project inside this folder, check newJavaProjectTemplate/README.md
+
 # How To work with my sub projects structure
 i.e:
 
 * ejercicios (git-project)
 * \\_ folder1
-* ···\\_ proj1  		(remoteBranchName: folder1-proj1)
-* ···\\_ proj2  		(remoteBranchName: folder1-proj2)
+* ···\\_ proj1                  (remoteBranchName: folder1-proj1)
+* ···\\_ proj2                  (remoteBranchName: folder1-proj2)
 * \\_ folder2
 * ···\\_ folder1
-* ......\\_ proj1  	(remoteBranchName: folder2-folder1-proj1)
-* ...\\_ proj2 		(remoteBranchName: folder2-proj2)
-* \\_ folder3 
+* ......\\_ proj1       (remoteBranchName: folder2-folder1-proj1)
+* ...\\_ proj2          (remoteBranchName: folder2-proj2)
+* \\_ folder3
 
 #### For reading
 * git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
+
+> i.e.: 
+
+``` 
+remoteBranchName=ejercicios-java-newJavaProjectTemplate;\
+projectPath=https://github.com/fritzmatias/ejercicios.git;\
+git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
+```
+
 
 #### For Modify
 * (after actions for reading)
