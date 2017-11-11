@@ -38,14 +38,14 @@ git push --set-upstream origin ${remoteBranchName}-${newProjectName}
 
 
 #### For reading
-* git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
+* git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
 
 > i.e.: 
 
 ``` 
 remoteBranchName=ejercicios-java-DocumentReader;\
 projectPath=https://github.com/fritzmatias/ejercicios.git;\
-git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
+git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
 ```
 
 #### For Modify
