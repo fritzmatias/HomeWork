@@ -1,5 +1,5 @@
 # check out 
-# For a new Java Project inside this folder, check newJavaProjectTemplate/README.md
+For a new Java Project inside this folder, check newJavaProjectTemplate/README.md
 
 # How To work with my sub projects structure
 i.e:
@@ -16,6 +16,15 @@ i.e:
 
 #### For reading
 * git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
+
+> i.e.: 
+
+``` 
+remoteBranchName=ejercicios-java-newJavaProjectTemplate;\
+projectPath=https://github.com/fritzmatias/ejercicios.git;\
+git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
+```
+
 
 #### For Modify
 * (after actions for reading)
