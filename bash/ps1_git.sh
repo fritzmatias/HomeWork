@@ -13,11 +13,11 @@
 #
 
 gitCache(){
-	"$(git rev-parse --show-toplevel)/.git.cache";
+	echo "$(git rev-parse --show-toplevel)/.git.cache";
 }
 addCacheToIgnoreFile(){
-	if ! [ -f gitCache ] || ! grep '.git.cache' gitCache >/dev/null 2>&1; then
-		local ignoreFile="$(git rev-parse --show-toplevel)/.gitignore"
+	local ignoreFile="$(git rev-parse --show-toplevel)/.gitignore"
+	if ! grep '.git.cache' ${ignoreFile} >/dev/null 2>&1; then
 		echo ".git.cache" >>"${ignoreFile}"
 		command git add "${ignoreFile}"
 		echo "INFO: The cache was added to git ignore file."
@@ -65,7 +65,7 @@ if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
 #       PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
         PS1="${PS1}"\
 "\$( [ "$gitenable"x == "true"x ] && git branch >/dev/null 2>&1 && echo '\[\033[01;30m\]git: '\$(git branch 2>/dev/null | grep '^*' | colrm 1 2 &&\
-  cachefile=\$(git rev-parse --show-toplevel)/.git.cache &&\
+  cachefile=\$(gitCache) &&\
   if [ \$(! [ -f \"\${cachefile}\" ] && git status -s >\"\${cachefile}\" 2>/dev/null ; cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
          echo '\[\033[01;31m\]:unsync(AMD:'\$(egrep '^[ AMD]{2,2}' \${cachefile} 2>/dev/null | wc -l)',?:'\$(egrep '^\?\?' \${cachefile} 2>/dev/null | wc -l)')';\
 else echo '';fi)'\[\033[01;30m\] \$\[\033[00m\] ')";
