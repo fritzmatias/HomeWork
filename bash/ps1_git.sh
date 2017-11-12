@@ -65,7 +65,7 @@ git(){
 		rm "$(git rev-parse --show-toplevel)/.git.cache" 1>/dev/null 2>&1
 	fi
 	if   [ "$1" == "status" ] && [ "$2" == "-s" ]; then
-		local cf="$(git rev-parse --show-toplevel)/.git.cache"
+		local cf="$(gitCache)"
 		command	git status -s >"$cf" 2>/dev/null; cat "$cf" 
 	else
 		command git "$@"
