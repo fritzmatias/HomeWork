@@ -23,7 +23,7 @@ git(){
 		command git "$@"
 	fi
 }
-disable(){
+gitCacheDisable(){
 if [[ ${OLDPS1} != $PS1 ]]; then
 	PS1=$OLDPS1;
 fi
@@ -32,7 +32,7 @@ export gitenable=false;
 #
 #
 
-enable(){
+gitCacheEnable(){
 if [[ ${OLDPS1} != ${PS1} ]]; then
 	export OLDPS1=$PS1
 fi
@@ -60,4 +60,4 @@ PS1="${PS1}"' '
 }
 
 
-enable
+gitCacheEnable
