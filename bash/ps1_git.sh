@@ -11,6 +11,12 @@
 # $(git status -s | grep ?? 2>/dev/null | wc -l)
 # git rev-parse --show-toplevel
 #
+git(){
+	if [[ "$1" == "add" ]] || [[ "$1" == "rm" ]] || [[ "$1" == "commit" ]] || [[ "$1" == "reset" ]] ||  [[ "$1" == "pull" ]]; then
+		rm $(git rev-parse --show-toplevel)/.git.cache 1>/dev/null 2>&1
+	fi
+	command git $@
+}
 #
 #
 ## check if some color is set
