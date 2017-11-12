@@ -12,10 +12,41 @@
 # git rev-parse --show-toplevel
 #
 
-gitCache(){
-	echo "$(git rev-parse --show-toplevel)/.git.cache";
+usage(){
+cat <<EOF
+For optimization as root create memory tmpfs and set the environment MEMCACHE variable
+mkdir /memCache
+chmod 777 /memCache
+mount -t tmpfs none -o size=5m /memCache
+EOF
 }
+[ -z "$MEMCACHE" ] && export MEMCACHE=/memCache
+
+isMemCacheAvailable(){
+  mount | grep 'tmpfs' | grep "${MEMCACHE}" >/dev/null 2>&1
+}
+! isMemCacheAvailable &&  usage
+
+gitCache(){
+	local cachePath="$(git rev-parse --show-toplevel)";
+	local cacheFile="${cachePath}/.git.cache";
+	if [ -d ${MEMCACHE} ] && isMemCacheAvailable ; then
+		if ! [ -d "${MEMCACHE}${cachePath}" ]; then
+			mkdir -p "${MEMCACHE}${cachePath}"
+		fi
+		echo "${MEMCACHE}${cacheFile}"
+		return;
+	fi
+	echo ${cacheFile}
+}
+
+
+
 addCacheToIgnoreFile(){
+	if [ -d ${MEMCACHE} ]; then
+		return;
+	fi
+
 	local ignoreFile="$(git rev-parse --show-toplevel)/.gitignore"
 	if ! grep '.git.cache' ${ignoreFile} >/dev/null 2>&1; then
 		echo ".git.cache" >>"${ignoreFile}"
@@ -25,12 +56,15 @@ addCacheToIgnoreFile(){
 		echo "INFO: The cache file is in the ignore file. Nothing to do."
 	fi
 }
+
+
+
 git(){
-	if [[ "$1" == "add" ]] || [[ "$1" == "rm" ]] || [[ "$1" == "commit" ]] || [[ "$1" == "reset" ]] \
-	       ||  [[ "$1" == "pull" ]]  || [[ "$1" == "merge" ]] ||  [[ "$1" == "fetch" ]]; then
+	if [ "$1" == "add" ] || [ "$1" == "rm" ] || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
+	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] || [ "$1" == "checkout" ]; then
 		rm "$(git rev-parse --show-toplevel)/.git.cache" 1>/dev/null 2>&1
 	fi
-	if   [[ "$1" == "status" ]] && [[ "$2" == "-s" ]]; then
+	if   [ "$1" == "status" ] && [ "$2" == "-s" ]; then
 		local cf="$(git rev-parse --show-toplevel)/.git.cache"
 		command	git status -s >"$cf" 2>/dev/null; cat "$cf" 
 	else
@@ -39,23 +73,27 @@ git(){
 }
 
 
+
 gitCacheDisable(){
-if [[ ${OLDPS1} != $PS1 ]]; then
+if [ "${OLDPS1}"x != "$PS1"x ]; then
 	PS1=$OLDPS1;
 fi
 export gitenable=false;
 echo "INFO: use gitCacheEnable to set the git status format in the console."
 }
+
+
+
 gitCacheEnable(){
 if echo ${PS1} | egrep 'git:' >/dev/null 2>/dev/null ; then
 	# fix multiple calls to this function
 	echo "WARNING: calling multiple times to gitCacheEnable. Aborting action."
 	return;
 fi
-
+echo "INFO: using $(gitCache)"
 addCacheToIgnoreFile
 
-if [[ ${OLDPS1} != ${PS1} ]]; then
+if [ "${OLDPS1}"x != "${PS1}"x ]; then
 	export OLDPS1=$PS1
 fi
 export gitenable=true;
