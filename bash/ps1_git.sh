@@ -11,6 +11,20 @@
 # $(git status -s | grep ?? 2>/dev/null | wc -l)
 # git rev-parse --show-toplevel
 #
+
+gitCache(){
+	"$(git rev-parse --show-toplevel)/.git.cache";
+}
+addCacheToIgnoreFile(){
+	if ! [ -f gitCache ] || ! grep '.git.cache' gitCache >/dev/null 2>&1; then
+		local ignoreFile="$(git rev-parse --show-toplevel)/.gitignore"
+		echo ".git.cache" >>"${ignoreFile}"
+		command git add "${ignoreFile}"
+		echo "INFO: The cache was added to git ignore file."
+	else
+		echo "INFO: The cache file is in the ignore file. Nothing to do."
+	fi
+}
 git(){
 	if [[ "$1" == "add" ]] || [[ "$1" == "rm" ]] || [[ "$1" == "commit" ]] || [[ "$1" == "reset" ]] \
 	       ||  [[ "$1" == "pull" ]]  || [[ "$1" == "merge" ]] ||  [[ "$1" == "fetch" ]]; then
@@ -23,16 +37,24 @@ git(){
 		command git "$@"
 	fi
 }
+
+
 gitCacheDisable(){
 if [[ ${OLDPS1} != $PS1 ]]; then
 	PS1=$OLDPS1;
 fi
 export gitenable=false;
+echo "INFO: use gitCacheEnable to set the git status format in the console."
 }
-#
-#
-
 gitCacheEnable(){
+if echo ${PS1} | egrep 'git:' >/dev/null 2>/dev/null ; then
+	# fix multiple calls to this function
+	echo "WARNING: calling multiple times to gitCacheEnable. Aborting action."
+	return;
+fi
+
+addCacheToIgnoreFile
+
 if [[ ${OLDPS1} != ${PS1} ]]; then
 	export OLDPS1=$PS1
 fi
@@ -46,7 +68,7 @@ if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
   cachefile=\$(git rev-parse --show-toplevel)/.git.cache &&\
   if [ \$(! [ -f \"\${cachefile}\" ] && git status -s >\"\${cachefile}\" 2>/dev/null ; cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
          echo '\[\033[01;31m\]:unsync(AMD:'\$(egrep '^[ AMD]{2,2}' \${cachefile} 2>/dev/null | wc -l)',?:'\$(egrep '^\?\?' \${cachefile} 2>/dev/null | wc -l)')';\
-else echo '';fi)'\[\033[00m\] \$')";
+else echo '';fi)'\[\033[01;30m\] \$\[\033[00m\] ')";
 
 else
 #       PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$'
@@ -57,7 +79,9 @@ else echo ''; fi)' \$')";
 fi
 PS1="${PS1}"' '
 
+echo "INFO: use gitCacheDisable to disable this format and the use of status caching."
 }
+
 
 
 gitCacheEnable
