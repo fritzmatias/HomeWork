@@ -14,9 +14,14 @@
 git(){
 	if [[ "$1" == "add" ]] || [[ "$1" == "rm" ]] || [[ "$1" == "commit" ]] || [[ "$1" == "reset" ]] \
 	       ||  [[ "$1" == "pull" ]]  || [[ "$1" == "merge" ]] ||  [[ "$1" == "fetch" ]]; then
-		rm $(git rev-parse --show-toplevel)/.git.cache 1>/dev/null 2>&1
+		rm "$(git rev-parse --show-toplevel)/.git.cache" 1>/dev/null 2>&1
 	fi
-	command git "$@"
+	if   [[ "$1" == "status" ]] && [[ "$2" == "-s" ]]; then
+		local cf="$(git rev-parse --show-toplevel)/.git.cache"
+		command	git status -s >"$cf" 2>/dev/null; cat "$cf" 
+	else
+		command git "$@"
+	fi
 }
 #
 #
