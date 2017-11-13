@@ -28,11 +28,11 @@ isMemCacheAvailable(){
 ! isMemCacheAvailable &&  usage
 
 gitCache(){
-	local cachePath="$(git rev-parse --show-toplevel)";
-	local cacheFile="${cachePath}/.git.cache";
+	local repoRoot="$(git rev-parse --show-toplevel)";
+	local cacheFile="${repoRoot}/.git.cache";
 	if [ -d ${MEMCACHE} ] && isMemCacheAvailable ; then
-		if ! [ -d "${MEMCACHE}${cachePath}" ]; then
-			mkdir -p "${MEMCACHE}${cachePath}"
+		if ! [ -d "${MEMCACHE}${repoRoot}" ]; then
+			mkdir -p "${MEMCACHE}${repoRoot}"
 		fi
 		echo "${MEMCACHE}${cacheFile}"
 		return;
@@ -59,14 +59,31 @@ addCacheToIgnoreFile(){
 
 
 
+buildCache(){
+  command git status -s >"$1" 2>/dev/null; 
+}
+
+
+
+cd(){
+	local repoRoot="$(git rev-parse --show-toplevel 2>/dev/null)";
+	if [ "$(command cd $@ 2>/dev/null; pwd)"x == "${repoRoot}"x ]; then
+		echo "INFO: update git cache" 
+	fi
+	command cd $@
+}
+
+
+
 git(){
 	if [ "$1" == "add" ] || [ "$1" == "rm" ] || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
-	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] || [ "$1" == "checkout" ]; then
-		rm "$(git rev-parse --show-toplevel)/.git.cache" 1>/dev/null 2>&1
+	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] ; then
+		local cf="$(gitCache)"
+		rm "${cf}" 1>/dev/null 2>&1
 	fi
 	if   [ "$1" == "status" ] && [ "$2" == "-s" ]; then
 		local cf="$(gitCache)"
-		command	git status -s >"$cf" 2>/dev/null; cat "$cf" 
+		buildCache "${cf}"; cat "${cf}" 
 	else
 		command git "$@"
 	fi
@@ -78,7 +95,7 @@ gitCacheDisable(){
 if [ "${OLDPS1}"x != "$PS1"x ]; then
 	PS1=$OLDPS1;
 fi
-export gitenable=false;
+export GITCACHEENABLE=false;
 echo "INFO: use gitCacheEnable to set the git status format in the console."
 }
 
@@ -96,15 +113,15 @@ addCacheToIgnoreFile
 if [ "${OLDPS1}"x != "${PS1}"x ]; then
 	export OLDPS1=$PS1
 fi
-export gitenable=true;
+export GITCACHEENABLE=true;
 
 ## check if some color is set
 if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
 #       PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
         PS1="${PS1}"\
-"\$( [ "$gitenable"x == "true"x ] && git branch >/dev/null 2>&1 && echo '\[\033[01;30m\]git: '\$(git branch 2>/dev/null | grep '^*' | colrm 1 2 &&\
+"\$( [ "$GITCACHEENABLE"x == "true"x ] && branch=\$(git branch 2>/dev/null) && echo '\[\033[01;30m\]git: '\$(echo \"\${branch}\"| grep '^*' | colrm 1 2 &&\
   cachefile=\$(gitCache) &&\
-  if [ \$(! [ -f \"\${cachefile}\" ] && git status -s >\"\${cachefile}\" 2>/dev/null ; cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
+  if [ \$(! [ -f \"\${cachefile}\" ] && buildCache \"\${cachefile}\" ; cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
          echo '\[\033[01;31m\]:unsync(AMD:'\$(egrep '^[ AMD]{2,2}' \${cachefile} 2>/dev/null | wc -l)',?:'\$(egrep '^\?\?' \${cachefile} 2>/dev/null | wc -l)')';\
 else echo '';fi)'\[\033[01;30m\] \$\[\033[00m\] ')";
 
