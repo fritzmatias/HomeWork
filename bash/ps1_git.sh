@@ -20,6 +20,14 @@ mount -t tmpfs none -o size=5m /memCache
 EOF
 }
 [ -z "$MEMCACHE" ] && export MEMCACHE=/memCache
+gitrmdeleted(){
+ local files=$(git ls-files --deleted)
+
+    while [ -n "${files}" ] && git rm --cached $(echo "${files}" | head -1500 ) ; do
+	files=$(git ls-files --deleted)
+    done
+
+}
 ###
 isMemCacheAvailable(){
   mount | grep 'tmpfs' | grep "${MEMCACHE}" >/dev/null 2>&1
