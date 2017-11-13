@@ -31,3 +31,4 @@
  ```. <filePath>/ps1_git.sh```
  
   This modify the PS1 behavor for the user related to ~
+ 
