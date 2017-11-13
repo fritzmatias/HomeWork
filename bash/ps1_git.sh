@@ -21,8 +21,8 @@ EOF
 }
 [ -z "$MEMCACHE" ] && export MEMCACHE=/memCache
 gitrmdeleted(){
+ command cd $(gitRepoLocalRootPath)
  local files=$(git ls-files --deleted)
-
     while [ -n "${files}" ] && git rm --cached $(echo "${files}" | head -1500 ) ; do
 	files=$(git ls-files --deleted)
     done
