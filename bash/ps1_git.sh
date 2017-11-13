@@ -95,21 +95,18 @@ local cf=$(gitCache)
 }
 ###
 git(){
-	if isGitCacheEnable ; then
-		if ( isGitCacheEmpty && ( [ "$1" == add ] || [ "$1" == "rm" ] )) || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
-		       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ]  ; then
-			command git "$@"
-			buildCache "$(gitCache)" &
-			return;
-		fi
-		command git "$@";
+	if isGitCacheEnable  && ( ( isGitCacheEmpty && ( [ "$1" == add ] || [ "$1" == "rm" ] )) || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
+	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] )  ; then
+		command git "$@"
+		buildCache "$(gitCache)" &
+		return;
+	fi
+
+	if [ "$1" == "status" ] && [ "$2" == "-s" ]; then
+		local cf="$(gitCache)"
+		buildCache "${cf}"; cat "${cf}" 
 	else
-		if  [ "$1" == "status" ] && [ "$2" == "-s" ]; then
-			local cf="$(gitCache)"
-			buildCache "${cf}"; cat "${cf}" 
-		else
-			command git "$@"
-		fi
+		command git "$@"
 	fi
 }
 ###
@@ -127,7 +124,6 @@ isGitCacheEnable(){
 ###
 ps1_gitType(){
 	[ "$(git rev-parse --is-bare-repository)"x == "true"x ] && echo "bare" || echo "git" 
-
 }
 ###
 ps1_showUnsync(){
@@ -141,7 +137,7 @@ gitCurrentPushBranch(){
 }
 ###
 ps1_push(){
-local pendingPush=$(git rev-parse @{push}... 2>/dev/null| sed -e 's/\^//g' | sort -un |wc -l)
+local pendingPush=$(git rev-parse @{push}... 2>/dev/null| sed -e 's/\^//g' | sort -u |wc -l)
     [ ${pendingPush} -gt 1 ] && echo ":push $(gitCurrentPushBranch)"
 }
 ###
