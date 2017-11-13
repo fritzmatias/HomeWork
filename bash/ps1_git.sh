@@ -90,16 +90,24 @@ cd(){
 }
 ###
 git(){
-	if isGitCacheEnable && ( [ "$1" == "add" ] || [ "$1" == "rm" ] || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
-	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] ) ; then
-		local cf="$(gitCache)"
-		rm "${cf}" 1>/dev/null 2>&1
-	fi
-	if  isGitCacheEnable && [ "$1" == "status" ] && [ "$2" == "-s" ]; then
-		local cf="$(gitCache)"
-		buildCache "${cf}"; cat "${cf}" 
-	else
+	if isGitCacheEnable ; then
+	#	if  [ "$1" == "add" ] || [ "$1" == "rm" ] ; then
+	#		rm "$(gitCache)" 1>/dev/null 2>&1
+	#	fi
+		if [ "$1" == "commit" ] || [ "$1" == "reset" ] \
+		       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ]  ; then
+			command git "$@"
+			buildCache "$(gitCache)" &
+			return
+		fi
 		command git "$@"
+	else
+		if  [ "$1" == "status" ] && [ "$2" == "-s" ]; then
+			local cf="$(gitCache)"
+			buildCache "${cf}"; cat "${cf}" 
+		else
+			command git "$@"
+		fi
 	fi
 }
 ###
@@ -162,7 +170,7 @@ if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
         PS1="${PS1}"\
 "\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
-  if [ \$(! [ -f \"\${cachefile}\" ] && buildCache \"\${cachefile}\" ; cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
+  if [ \$(! [ -f \"\${cachefile}\" ] && buildCache \"\${cachefile}\" & cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
          echo '\[\033[01;31m\]'\$(ps1_showUnsync \${cachefile} );\
   else echo '\[\033[01;31m\]'\$(ps1_push);\
   fi)'\[\033[01;30m\] \$\[\033[00m\] ')";
@@ -172,7 +180,7 @@ else
         PS1="${PS1}"\
 "\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo \$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
-  if [ \$(! [ -f \"\${cachefile}\" ] && buildCache \"\${cachefile}\" ; cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
+  if [ \$(! [ -f \"\${cachefile}\" ] && buildCache \"\${cachefile}\" & cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
          echo \$(ps1_showUnsync \${cachefile} );\
   else echo \$(ps1_push);\
   fi)' \$ ')";
