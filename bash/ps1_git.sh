@@ -8,8 +8,6 @@
 ##	copy the script to /home/${user}/
 ## 	execute the script inside the ~/.bashrc with: '. scriptName'
 ##
-# $(git status -s | grep ?? 2>/dev/null | wc -l)
-# git rev-parse --show-toplevel
 #
 
 usage(){
@@ -28,7 +26,7 @@ isMemCacheAvailable(){
 ! isMemCacheAvailable &&  usage
 
 gitCache(){
-	local repoRoot="$(git rev-parse --show-toplevel)";
+	local repoRoot="$(git rev-parse --show-toplevel 2>/dev/null)";
 	local cacheFile="${repoRoot}/.git.cache";
 	if [ -d ${MEMCACHE} ] && isMemCacheAvailable ; then
 		if ! [ -d "${MEMCACHE}${repoRoot}" ]; then
@@ -47,7 +45,7 @@ addCacheToIgnoreFile(){
 		return;
 	fi
 
-	local ignoreFile="$(git rev-parse --show-toplevel)/.gitignore"
+	local ignoreFile="$(git rev-parse --show-toplevel 2>/dev/null)/.gitignore"
 	if ! grep '.git.cache' ${ignoreFile} >/dev/null 2>&1; then
 		echo ".git.cache" >>"${ignoreFile}"
 		command git add "${ignoreFile}"
