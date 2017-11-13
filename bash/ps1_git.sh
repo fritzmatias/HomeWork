@@ -60,28 +60,29 @@ addCacheToIgnoreFile(){
 
 
 buildCache(){
-  command git status -s >"$1" 2>/dev/null; 
+  isGitCacheEnable && command git status -s >"$1" 2>/dev/null; 
 }
 
 
 
 cd(){
 	local repoRoot="$(git rev-parse --show-toplevel 2>/dev/null)";
-	if [ "$(command cd $@ 2>/dev/null; pwd)"x == "${repoRoot}"x ]; then
-		echo "INFO: update git cache" 
+	if isGitCacheEnable && [ "$(command cd $@ 2>/dev/null; pwd)"x == "${repoRoot}"x ]; then
+		echo "INFO: updating the cache status in background each time the root of the repo is accesed "
+		buildCache $(gitCache) &
 	fi
-	command cd $@
+	command cd "$@"
 }
 
 
 
 git(){
-	if [ "$1" == "add" ] || [ "$1" == "rm" ] || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
-	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] ; then
+	if isGitCacheEnable && ( [ "$1" == "add" ] || [ "$1" == "rm" ] || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
+	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] ) ; then
 		local cf="$(gitCache)"
 		rm "${cf}" 1>/dev/null 2>&1
 	fi
-	if   [ "$1" == "status" ] && [ "$2" == "-s" ]; then
+	if  isGitCacheEnable && [ "$1" == "status" ] && [ "$2" == "-s" ]; then
 		local cf="$(gitCache)"
 		buildCache "${cf}"; cat "${cf}" 
 	else
@@ -99,6 +100,11 @@ export GITCACHEENABLE=false;
 echo "INFO: use gitCacheEnable to set the git status format in the console."
 }
 
+
+
+isGitCacheEnable(){
+	[ "${GITCACHEENABLE}"x == "true"x ]
+}
 
 
 gitCacheEnable(){
