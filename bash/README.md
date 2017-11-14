@@ -7,7 +7,6 @@
 * parent origin (i.e. 'github/projectName.git')
 * status	(only when is useful)
 * push pending  (only after commits)
-(https://github.com/fritzmatias/ejercicios/tree/ejercicios-bash/bash/ps1_git.png)
 
 
 ## Enable Disable
