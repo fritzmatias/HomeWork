@@ -199,15 +199,13 @@ local cf="$(gitCache)"
 	fi
 	## intercepting mantenance commands
 	if [ "$1" == gc ]; then
-		## forcing to update the cache
-		if git status -s && isRepoCommited "${cf}"; then
 		## only mantinance if the repo is commited
+		if git status -s && ! isRepoCommited "${cf}"; then
 			## doing the mantenance
 			command git "$@"
-			## add a commit related to the mantenance
-			echo "INFO: an auto commit is made after the mantenance"
-			git commit -m 'Repo Mantenance: git ${@}'
+			## a commit related to the mantenance is not required
 		else
+			## forcing to update the cache
 			echo "ERROR: first commit all your changes."
 		fi
 		return
