@@ -182,16 +182,39 @@ gitCachePerformanceOK(){
 gitCachePerformance "ok"
 }
 ###
+isRepoCommited(){
+cachefile="$1"
+[ "$cachefile"x == x ] && cachefile=$(gitCache)
+  [ $(catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ]
+}
+###
 git(){
+local cf="$(gitCache)"
 	if isGitCacheEnable  && ( ( isSmallEnoght && ( [ "$1" == add ] || [ "$1" == "rm" ] )) || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
 	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] )  ; then
 		command git "$@"
 		buildCacheBG "$(gitCache)" 
 		return;
 	fi
+	## intercepting mantenance commands
+	if [ "$1" == gc ]; then
+		## forcing to update the cache
+		if git status -s && isRepoCommited "${cf}"; then
+		## only mantinance if the repo is commited
+			## doing the mantenance
+			commit git "$@"
+			## add a commit related to the mantenance
+			echo "INFO: an auto commit is made after the mantenance"
+			commit git commit -m "Repo Mantenance: git $@"
+		else
+			echo "ERROR: first commit all your changes."
+		fi
+		return
+	fi
 
+	# Don't care if the cache is enable or not, the time required is similar
 	if [ "$1" == "status" ] && [ "$2" == "-s" ]; then
-		local cf="$(gitCache)"
+		#local cf="$(gitCache)"
 		buildCache "${cf}"; catCache  "${cf}" 
 	else
 		command git "$@"
@@ -252,11 +275,12 @@ addCacheToIgnoreFile
 
 ## check if some color is set
 if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
+ ###if [ \$(! [ -f \"\${cachefile}\" ] && buildCacheBG \"\${cachefile}\" ; catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
 #       PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
         PS1="${PS1}"\
 "\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
-  if [ \$(! [ -f \"\${cachefile}\" ] && buildCacheBG \"\${cachefile}\" ; catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
+  if isRepoCommited ;then\
          echo '\[\033[01;31m\]'\$(ps1_showUnsync \${cachefile} );\
 	 echo '\[\033[01;31m\]'\$(ps1_push);\
   else echo '\[\033[01;31m\]'\$(ps1_push);\
