@@ -206,7 +206,7 @@ local cf="$(gitCache)"
 			command git "$@"
 			## add a commit related to the mantenance
 			echo "INFO: an auto commit is made after the mantenance"
-			command git commit -m 'Repo Mantenance: git'"$@"
+			command git commit -m "Repo Mantenance: git $@"
 		else
 			echo "ERROR: first commit all your changes."
 		fi
