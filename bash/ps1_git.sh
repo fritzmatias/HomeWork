@@ -7,49 +7,100 @@
 ## Instalation:
 ##	copy the script to /home/${user}/
 ## 	execute the script inside the ~/.bashrc with: '. scriptName'
-##
-#
 
 ###
 usage(){
 cat <<EOF
+Info: 
+gitCache 	-- the current cache file used
+
+Management : 
+gitCacheDisable/gitCacheEnable  -- enable disable the use of the cache, update & execution
+addCacheToIgnoreFile  		-- adds the cache to the ignore file only if is disk cache
+setGitCacheBG/setGitCacheFG 	-- modifies the execution of updates  
+
+
+Performance 
+gitCachePerformanceSLOW/gitCachePerformanceOK -- modifies when the cache is updated on git add and git rm
+
+git helper functions:
+gitrmdeleted 	-- celan the git stage area with the deleted files in multiple calls of 2500 files
+
+EOF
+
+}
+###
+memcache_help(){
+cat <<EOF
+
 For optimization as root create memory tmpfs and set the environment MEMCACHE variable
-mkdir /memCache
-chmod 777 /memCache
-mount -t tmpfs none -o size=5m /memCache
+		mkdir /memCache
+		chmod 777 /memCache
+		mount -t tmpfs none -o size=5m /memCache
+
 EOF
 }
 [ -z "$MEMCACHE" ] && export MEMCACHE=/memCache
+###
 gitrmdeleted(){
  command cd $(gitRepoLocalRootPath)
  local files=$(git ls-files --deleted)
-    while [ -n "${files}" ] && git rm --cached $(echo "${files}" | head -1500 ) ; do
+    while [ -n "${files}" ] && git rm --cached $(echo "${files}" | head -2500 ) ; do
 	files=$(git ls-files --deleted)
     done
-
 }
 ###
 isMemCacheAvailable(){
   mount | grep 'tmpfs' | grep "${MEMCACHE}" >/dev/null 2>&1
 }
-! isMemCacheAvailable &&  usage
-
 ###
 gitRepoLocalRootPath(){
-	command git rev-parse --show-toplevel 2>/dev/null
+if [[ "$PWD" != "${GITREPOLOCALROOTPATH}" ]]; then 
+	export GITREPOLOCALROOTPATH=$(command git rev-parse --show-toplevel 2>/dev/null) ;
+fi 
+echo ${GITREPOLOCALROOTPATH} ;
 }
 ###
 gitCache(){
-	local repoRoot="$(gitRepoLocalRootPath)"
-	local cacheFile="${repoRoot}/.git.cache";
+local repoRoot="$(gitRepoLocalRootPath)"
+ gitBashCache "${repoRoot}" || gitMemCache "${repoRoot}" || gitDiskCache "${repoRoot}"
+}
+###
+gitBashCache(){
+isGitCacheBashVar && GITCACHEBASHVAR=${repoRoot}  && echo $GITCACHEBASHVAR
+}
+
+###
+isGitCacheBashVar(){
+ [ "$GITCACHEBASHVAR"x == "$(gitRepoLocalRootPath)"x ]
+}
+###
+gitCacheBashVarDisable(){
+GITCACHEBASHVAR=""
+}
+###
+gitCacheBashVarEnable(){
+GITCACHEBASHVAR="$(gitRepoLocalRootPath)"
+echo "using BASH variable GITCACHEVAR. To use a file cache, set gitCacheBashVarDisable"
+}
+###
+gitDiskCache(){
+	local cacheFile="${1}/.git.cache";
+	echo ${cacheFile}
+}
+###
+gitMemCache(){
+	local repoRoot="${1}"
+	local cacheFile="${1}/.git.cache";
 	if [ -d ${MEMCACHE} ] && isMemCacheAvailable ; then
 		if ! [ -d "${MEMCACHE}${repoRoot}" ]; then
 			mkdir -p "${MEMCACHE}${repoRoot}"
+			rm $(gitDiskCache "${repoRoot}" )
 		fi
 		echo "${MEMCACHE}${cacheFile}"
-		return;
+		return 0;
 	fi
-	echo ${cacheFile}
+	return 1;
 }
 ###
 isGitRepo(){
@@ -77,34 +128,71 @@ addCacheToIgnoreFile(){
 }
 ###
 buildCache(){
-  isGitCacheEnable && command git status -s >"$1" 2>/dev/null; 
+  isGitCacheEnable && ( (isGitCacheBashVar && export GITCACHEVAR=$(command git status -s 2>/dev/null ))\
+	|| ( gitCacheBashVarDisable && command git status -s >"$1" 2>/dev/null ) );
+			
+}
+###
+catCache(){
+isGitCacheBashVar && echo "$GITCACHEVAR" || cat "$@" 
+}
+###
+buildCacheBG(){
+ if [ "${GITCACHEBUILDBG}"x == "true"x ]; then
+   buildCache "$1" &
+ else
+   buildCache "$1"
+ fi
+}
+###
+setGitCacheBG(){
+export GITCACHEBUILDBG=true
+echo "INFO: the cache build will be in bg,  change  use 'setGitCacheFG'"
+}
+setGitCacheFG(){
+export GITCACHEBUILDBG=false
+echo "INFO: the cache build will be in fg,  change  use 'setGitCacheBG'"
 }
 ###
 cd(){
-	local repoRoot="$(gitRepoLocalRootPath)"
-	if isGitCacheEnable && [ "$(command cd $@ 2>/dev/null; pwd)"x == "${repoRoot}"x ]; then
-		echo "INFO: updating the cache status in background each time the root of the repo is accesed "
-		buildCache $(gitCache) &
+	command cd "$@" &&  \
+	if isGitCacheEnable && [ "$PWD"x == "$(gitRepoLocalRootPath)"x ]; then
+		echo "INFO: updating the cache status in background each time the root of the repo is accesed. Use 'setGitCacheFG' to disable "
+		buildCacheBG $(gitCache) 
 	fi
-	command cd "$@"
 }
 ###
 isGitCacheEmpty(){
 local cf=$(gitCache)
- ! [ -f ${cf} ] || [ $(cat ${cf} 2>/dev/null | wc -l) -eq 0 ]
+ ! [ -f ${cf} ] || [ $(catCache ${cf} 2>/dev/null | wc -l) -eq 0 ]
+}
+###
+isSmallEnoght(){
+ isGitCacheEmpty || [ "$GITCACHEPERFORMANCE"x  == "ok"x ] 
+}
+###
+gitCachePerformance(){
+# slow, ok
+export GITCACHEPERFORMANCE=${1}
+}
+gitCachePerformanceSLOW(){
+gitCachePerformance "slow"
+}
+gitCachePerformanceOK(){
+gitCachePerformance "ok"
 }
 ###
 git(){
-	if isGitCacheEnable  && ( ( isGitCacheEmpty && ( [ "$1" == add ] || [ "$1" == "rm" ] )) || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
+	if isGitCacheEnable  && ( ( isSmallEnoght && ( [ "$1" == add ] || [ "$1" == "rm" ] )) || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
 	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] )  ; then
 		command git "$@"
-		buildCache "$(gitCache)" &
+		buildCacheBG "$(gitCache)" 
 		return;
 	fi
 
 	if [ "$1" == "status" ] && [ "$2" == "-s" ]; then
 		local cf="$(gitCache)"
-		buildCache "${cf}"; cat "${cf}" 
+		buildCache "${cf}"; catCache  "${cf}" 
 	else
 		command git "$@"
 	fi
@@ -128,8 +216,7 @@ ps1_gitType(){
 ###
 ps1_showUnsync(){
 local cachefile=$1
-        # echo '\[\033[01;31m\]:unsync(M:'\$(egrep '^[ AMDRCU]{2,2}' \${cachefile} 2>/dev/null | wc -l)',?:'\$(egrep '^\?\?' \${cachefile} 2>/dev/null | wc -l)')';\
-         echo ':unsync(M:'$(egrep '^[ AMDRCU]{2,2}' ${cachefile} 2>/dev/null | wc -l)',?:'$(egrep '^\?\?' ${cachefile} 2>/dev/null | wc -l)')';
+         echo ':unsync(M:'$(catCache "${cachefile}" | egrep '^[ AMDRCU]{2,2}' 2>/dev/null | wc -l)',?:'$(catCache "${cachefile} | "egrep '^\?\?' 2>/dev/null | wc -l)')';
 }
 ###
 gitCurrentPushBranch(){
@@ -149,18 +236,19 @@ local baseName=$(basename ${origin} 2>/dev/null)
 }
 ###
 gitCacheEnable(){
-if echo ${PS1} | egrep 'git:' >/dev/null 2>/dev/null ; then
+if isGitCacheEnable; then
 	# fix multiple calls to this function
 	echo "WARNING: calling multiple times to gitCacheEnable. Aborting action."
 	return;
 fi
-echo "INFO: using $(gitCache)"
-addCacheToIgnoreFile
 
 if [ "${OLDPS1}"x != "${PS1}"x ]; then
 	export OLDPS1=$PS1
 fi
 export GITCACHEENABLE=true;
+#gitCacheBashVarEnable # don't work yet,  the bachground processing generates new shells
+echo "INFO: using $(gitCache)"
+addCacheToIgnoreFile
 
 ## check if some color is set
 if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
@@ -168,7 +256,7 @@ if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
         PS1="${PS1}"\
 "\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
-  if [ \$(! [ -f \"\${cachefile}\" ] && buildCache \"\${cachefile}\" & cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
+  if [ \$(! [ -f \"\${cachefile}\" ] && buildCacheBG \"\${cachefile}\" ; catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
          echo '\[\033[01;31m\]'\$(ps1_showUnsync \${cachefile} );\
   else echo '\[\033[01;31m\]'\$(ps1_push);\
   fi)'\[\033[01;30m\] \$\[\033[00m\] ')";
@@ -178,7 +266,7 @@ else
         PS1="${PS1}"\
 "\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo \$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
-  if [ \$(! [ -f \"\${cachefile}\" ] && buildCache \"\${cachefile}\" & cat \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
+  if [ \$(! [ -f \"\${cachefile}\" ] && buildCacheBG \"\${cachefile}\" ; catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
          echo \$(ps1_showUnsync \${cachefile} );\
   else echo \$(ps1_push);\
   fi)' \$ ')";
@@ -190,4 +278,8 @@ echo "INFO: use gitCacheDisable to disable this format and the use of status cac
 }
 #############################################################################
 
+usage
+! isMemCacheAvailable && memcache_help 
+gitCachePerformanceOK
+setGitCacheFG
 gitCacheEnable
