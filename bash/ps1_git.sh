@@ -258,6 +258,7 @@ if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
   cachefile=\$(gitCache) &&\
   if [ \$(! [ -f \"\${cachefile}\" ] && buildCacheBG \"\${cachefile}\" ; catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
          echo '\[\033[01;31m\]'\$(ps1_showUnsync \${cachefile} );\
+	 echo '\[\033[01;31m\]'\$(ps1_push);\
   else echo '\[\033[01;31m\]'\$(ps1_push);\
   fi)'\[\033[01;30m\] \$\[\033[00m\] ')";
 
@@ -267,6 +268,7 @@ else
 "\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo \$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
   if [ \$(! [ -f \"\${cachefile}\" ] && buildCacheBG \"\${cachefile}\" ; catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
+         echo \$(ps1_showUnsync \${cachefile} );\
          echo \$(ps1_showUnsync \${cachefile} );\
   else echo \$(ps1_push);\
   fi)' \$ ')";
