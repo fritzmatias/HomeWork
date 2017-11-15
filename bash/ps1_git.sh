@@ -130,7 +130,6 @@ addCacheToIgnoreFile(){
 buildCache(){
   isGitCacheEnable && ( (isGitCacheBashVar && export GITCACHEVAR=$(command git status -s 2>/dev/null ))\
 	|| ( gitCacheBashVarDisable && command git status -s >"$1" 2>/dev/null ) );
-			
 }
 ###
 catCache(){
@@ -184,8 +183,10 @@ gitCachePerformance "ok"
 ###
 isRepoCommited(){
 cachefile="$1"
-[ "$cachefile"x == x ] && cachefile=$(gitCache)
-  [ $(catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ]
+[ "$cachefile"x == x ] && cachefile=$(gitCache) 
+#buildCacheBG "${cachefile}"
+ [ $(catCache  "${cachefile}" 2>/dev/null | wc -l ) -eq 0 ]
+
 }
 ###
 git(){
@@ -246,7 +247,7 @@ gitCurrentPushBranch(){
 	git branch -vv | grep '^*'|cut -d'[' -f 2 | cut -d']' -f 1
 }
 ###
-ps1_push(){
+ps1_showPush(){
 local pendingPush=$(git rev-parse @{push}... 2>/dev/null| sed -e 's/\^//g' | sort -u |wc -l)
     [ ${pendingPush} -gt 1 ] && echo ":push $(gitCurrentPushBranch)"
 }
@@ -275,26 +276,23 @@ addCacheToIgnoreFile
 
 ## check if some color is set
 if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
- ###if [ \$(! [ -f \"\${cachefile}\" ] && buildCacheBG \"\${cachefile}\" ; catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
 #       PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
         PS1="${PS1}"\
-"\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
+"\$( [ "${GITCACHEENABLE}"x == truex ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
-  if isRepoCommited ;then\
+  if ! isRepoCommited \${cachefile}  ;then\
          echo '\[\033[01;31m\]'\$(ps1_showUnsync \${cachefile} );\
-	 echo '\[\033[01;31m\]'\$(ps1_push);\
-  else echo '\[\033[01;31m\]'\$(ps1_push);\
-  fi)'\[\033[01;30m\] \$\[\033[00m\] ')";
+  else echo '\[\033[01;31m\]'\$(ps1_showPush);\
+  fi)'\[\033[01;30m\] \$\[\033[00m\] ') ";
 
 else
 #       PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$'
         PS1="${PS1}"\
 "\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo \$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
-  if [ \$(! [ -f \"\${cachefile}\" ] && buildCacheBG \"\${cachefile}\" ; catCache  \"\${cachefile}\" 2>/dev/null | wc -l ) -gt 0 ];then\
+  if ! isRepoCommited \${cachefile}  ;then\
          echo \$(ps1_showUnsync \${cachefile} );\
-         echo \$(ps1_showUnsync \${cachefile} );\
-  else echo \$(ps1_push);\
+  else echo \$(ps1_showPush);\
   fi)' \$ ')";
 
 fi
