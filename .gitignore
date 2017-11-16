@@ -7,3 +7,4 @@ RemoteSystemsTempFiles/
 .project
 .settings
 .classpath
+.git.cache
