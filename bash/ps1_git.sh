@@ -254,7 +254,7 @@ ps1_showOrigin(){
 local origin=$(git remote get-url origin 2>/dev/null )
 local remote=$(echo ${origin} | sed -e 's/.*:\/\/\|www.\|\.\(com\|org\|gov\|edu\).*//g')
 local baseName=$(basename ${origin} 2>/dev/null)
-	([ -z ${remote} ] && echo 'self') || (echo "${remote}" | egrep '^/' >/dev/null 2>&1 && echo "local/${baseName}") || echo "${remote}/${baseName}" 
+	([ -z ${remote} ] && echo 'self') || (echo "${remote}" | egrep '^/|@' >/dev/null 2>&1 && echo "local/${baseName}") || echo "${remote}/${baseName}" 
 }
 ###
 gitCacheEnable(){
