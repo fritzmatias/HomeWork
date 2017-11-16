@@ -192,7 +192,7 @@ cachefile="$1"
 git(){
 local cf="$(gitCache)"
 	if isGitCacheEnable  && ( ( isSmallEnoght && ( [ "$1" == add ] || [ "$1" == "rm" ] )) || [ "$1" == "commit" ] || [ "$1" == "reset" ] \
-	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] )  ; then
+	       ||  [ "$1" == "pull" ]  || [ "$1" == "merge" ] ||  [ "$1" == "fetch" ] || [ "$1" == checkout ] )  ; then
 		command git "$@"
 		buildCacheBG "$(gitCache)" 
 		return;
@@ -238,7 +238,7 @@ ps1_gitType(){
 ###
 ps1_showUnsync(){
 local cachefile=$1
-         echo ':unsync(M:'$(catCache "${cachefile}" | egrep '^[ AMDRCU]{2,2}' 2>/dev/null | wc -l)',?:'$(catCache "${cachefile} | "egrep '^\?\?' 2>/dev/null | wc -l)')';
+         echo ':unsync(M:'$(catCache "${cachefile}" | egrep '^[ AMDRCU]{2,2}' 2>/dev/null | wc -l)',?:'$(catCache "${cachefile}" | egrep '^\?\?' 2>/dev/null | wc -l)')';
 }
 ###
 gitCurrentPushBranch(){
