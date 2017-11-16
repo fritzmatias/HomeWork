@@ -1,5 +1,5 @@
 # check out 
-For a new Java Project inside this folder, check newJavaProjectTemplate/README.md
+For a new Java Project inside this folder, change to branch and check the branch ejercicios-java/README.md
 
 # How To work with my sub projects structure
 i.e:
@@ -20,32 +20,35 @@ i.e:
 > i.e.: 
 
 ``` 
-remoteBranchName=ejercicios-java;\
-projectPath=https://github.com/fritzmatias/ejercicios.git;\
-newProjectName=DocumentReader\
-git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
+remoteBranchName=ejercicios-java;
+projectPath=https://github.com/fritzmatias/ejercicios.git;
+newProjectName=DocumentReader;
+
+  git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
 ```
 * git push --set-upstream origin ${remoteBranchName}-${newProjectName}
 
 > i.e.: 
 
 ``` 
-remoteBranchName=ejercicios-java-DocumentReader;\
-projectPath=https://github.com/fritzmatias/ejercicios.git;\
-newProjectName=DocumentReader\
-git push --set-upstream origin ${remoteBranchName}-${newProjectName}
+remoteBranchName=ejercicios-java-DocumentReader;
+projectPath=https://github.com/fritzmatias/ejercicios.git;
+newProjectName=DocumentReader;
+
+  git push --set-upstream origin ${remoteBranchName}-${newProjectName}
 ```
 
 
 #### For reading
-* git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
+* git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-clone
 
 > i.e.: 
 
 ``` 
-remoteBranchName=ejercicios-java-DocumentReader;\
-projectPath=https://github.com/fritzmatias/ejercicios.git;\
-git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-local
+remoteBranchName=ejercicios-java-DocumentReader;
+projectPath=https://github.com/fritzmatias/ejercicios.git;
+
+  git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-clone
 ```
 
 #### For Modify
