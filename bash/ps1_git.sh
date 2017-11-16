@@ -113,7 +113,7 @@ gitCurrentBranch(){
 }
 ###
 addCacheToIgnoreFile(){
-	if [ -d ${MEMCACHE} ]; then
+	if [ -d "${MEMCACHE}" ] && [[ "${MEMCACHE}" == "$(gitCache)" ]] ; then
 		return;
 	fi
 
