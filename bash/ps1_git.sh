@@ -200,7 +200,7 @@ local cf="$(gitCache)"
 	## intercepting mantenance commands
 	if [ "$1" == gc ]; then
 		## only mantinance if the repo is commited
-		if git status -s && ! isRepoCommited "${cf}"; then
+		if git status -s && isRepoCommited "${cf}"; then
 			## doing the mantenance
 			command git "$@"
 			## a commit related to the mantenance is not required
