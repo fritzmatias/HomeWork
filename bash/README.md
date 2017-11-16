@@ -3,8 +3,8 @@
 
 ## Info showed
 * repo type (bare | git)
-* branch name
 * parent origin (i.e. 'github/projectName.git')
+* branch name
 * status	(only when is useful)
 * push pending  (only after commits)
 
@@ -15,7 +15,7 @@
   ```gitCacheDisable```  - disables the script in this console and uses the original definition of PS1
 
 ## help functions
-  ```gitrmdeleted```   - syncronize the staged deleted files on massive files
+  ```gitrmdeleted```   - syncronize the staged deleted files on massive repo
   
 
 ## Cache
