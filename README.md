@@ -3,17 +3,17 @@ For a new Java Project inside this folder, change to branch and check the branch
 
 # How To work with my sub projects structure
 i.e:
-
-* ejercicios (git-project)
-* \\_ folder1
-* ···\\_ proj1                  (remoteBranchName: folder1-proj1)
-* ···\\_ proj2                  (remoteBranchName: folder1-proj2)
-* \\_ folder2
-* ···\\_ folder1
-* ......\\_ proj1       (remoteBranchName: folder2-folder1-proj1)
-* ...\\_ proj2          (remoteBranchName: folder2-proj2)
-* \\_ folder3
-
+```
+HomeWork (git-project: https://github.com/fritzmatias/HomeWork.git)
+ \\_ folder1
+ ···\\_ proj1                  (remoteBranchName: folder1-proj1)
+ ···\\_ proj2                  (remoteBranchName: folder1-proj2)
+ \\_ folder2
+ ···\\_ folder1
+ ......\\_ proj1       (remoteBranchName: folder2-folder1-proj1)
+ ...\\_ proj2          (remoteBranchName: folder2-proj2)
+ \\_ folder3
+```
 #### For new projects
 * git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-${newProjectName}
 
@@ -32,7 +32,7 @@ newProjectName=DocumentReader;
 
 ``` 
 remoteBranchName=ejercicios-java-DocumentReader;
-projectPath=https://github.com/fritzmatias/ejercicios.git;
+projectPath=https://github.com/fritzmatias/HomeWork.git;
 newProjectName=DocumentReader;
 
   git push --set-upstream origin ${remoteBranchName}-${newProjectName}
@@ -46,15 +46,15 @@ newProjectName=DocumentReader;
 
 ``` 
 remoteBranchName=ejercicios-java-DocumentReader;
-projectPath=https://github.com/fritzmatias/ejercicios.git;
+projectPath=https://github.com/fritzmatias/HomeWork.git;
 
   git clone --single-branch -b ${remoteBranchName} ${projectPath} ${remoteBranchName}-clone
 ```
 
 #### For Modify
 * (after actions for reading)
-* cd ${remoteBranchName}-local
-* git checkout ${remoteBranchName}-local
+* cd ${remoteBranchName}-clone
+* git checkout ${remoteBranchName}-clone
 * git branch --track ${remoteBranchName}-fix
 * git checkout ${remoteBranchName}-fix
 * .... (modify)
