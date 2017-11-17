@@ -54,17 +54,16 @@ projectPath=https://github.com/fritzmatias/HomeWork.git;
 #### For Modify
 * (after actions for reading)
 * cd ${remoteBranchName}-clone
-* git checkout ${remoteBranchName}-clone
 * git branch --track ${remoteBranchName}-fix
 * git checkout ${remoteBranchName}-fix
 * .... (modify)
-* git commit
+* git commit -a -m '<some comment about the fix>'
 * git push --set-upstream origin ${remoteBranchName}-fix
 
 #### Merge - server side -
 * (into the ProjectPath)
 * git checkout ${remoteBranchName}
-* git merge ${remoteBranchName}-fix
 * git tag ${remoteBranchName}-preMerge
-* git branch -d ${remoteBranchName}-fix ()
+* git merge ${remoteBranchName}-fix
+* git branch -d ${remoteBranchName}-fix 
 
