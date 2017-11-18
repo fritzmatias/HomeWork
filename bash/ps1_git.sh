@@ -282,6 +282,15 @@ local baseName=$(basename ${origin} 2>/dev/null)
 	([ -z ${remote} ] && echo 'self') || (echo "${remote}" | egrep '^/|@' >/dev/null 2>&1 && echo "local/${baseName}") || echo "${remote}/${baseName}" 
 }
 ###
+ps1_cmdLineChar(){
+#copied from /etc/profile
+    if [ "`id -u`" -eq 0 ]; then
+      echo '#'
+    else
+      echo '$'
+    fi
+}
+###
 export CUSTOM='\n'
 gitCacheEnable(){
 if isGitCacheEnable; then
@@ -307,7 +316,7 @@ if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
   if ! isRepoCommited \${cachefile}  ;then\
          echo '\[\033[01;31m\]'\$(ps1_showUnsync \${cachefile} );\
   else echo '\[\033[01;31m\]'\$(ps1_showPush);\
-  fi)'\[\033[01;30m\]${CUSTOM} \$\[\033[00m\] ')";
+  fi)'\[\033[01;30m\]${CUSTOM} $(ps1_cmdLineChar)\[\033[00m\] ')";
 
 else
 #       PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$'
@@ -317,7 +326,7 @@ else
   if ! isRepoCommited \${cachefile}  ;then\
          echo \$(ps1_showUnsync \${cachefile} );\
   else echo \$(ps1_showPush);\
-  fi)'${CUSTOM} \$ ')";
+  fi)'${CUSTOM} $(ps1_cmdLineChar) ')";
 
 fi
 PS1="${PS1}"' '
