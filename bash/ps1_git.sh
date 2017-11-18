@@ -19,12 +19,12 @@ gitCacheDisable/gitCacheEnable  -- enable disable the use of the cache, update &
 addCacheToIgnoreFile  		-- adds the cache to the ignore file only if is disk cache
 setGitCacheBG/setGitCacheFG 	-- modifies the execution of updates  
 
-
 Performance 
 gitCachePerformanceSLOW/gitCachePerformanceOK -- modifies when the cache is updated on git add and git rm
 
 git helper functions:
 gitrmdeleted 	-- celan the git stage area with the deleted files in multiple calls of 2500 files
+gitshowdifffiles [prev commit number] -- shows the files commited in the commit prevous
 
 EOF
 
@@ -48,6 +48,13 @@ gitrmdeleted(){
     while [ -n "${files}" ] && git rm --cached $(echo "${files}" | head -2500 ) ; do
 	files=$(git ls-files --deleted)
     done
+}
+###
+gitshowdifffiles(){
+local commit="$1"
+	[ "${commit}"x == x ] && commit="HEAD~0" && echo "INFO: you can set HEAD~n or commit id " >&2
+	echo "Diff files in commit ${commit} "
+	git diff-tree --no-commit-id --name-only -r ${commit}
 }
 ###
 isMemCacheAvailable(){
