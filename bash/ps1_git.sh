@@ -25,6 +25,7 @@ gitCachePerformanceSLOW/gitCachePerformanceOK -- modifies when the cache is upda
 git helper functions:
 gitrmdeleted 	-- celan the git stage area with the deleted files in multiple calls of 2500 files
 gitshowdifffiles [prev commit number] -- shows the files commited in the commit prevous
+gitignore <ignore criteria> -- adds the ignore criteria into the local repo .gitignore
 
 EOF
 
@@ -55,6 +56,23 @@ local commit="$1"
 	[ "${commit}"x == x ] && commit="HEAD~0" && echo "INFO: you can set HEAD~n or commit id " >&2
 	echo "Diff files in commit ${commit} "
 	git diff-tree --no-commit-id --name-only -r ${commit}
+}
+###
+gitignore(){
+local repoRoot=$(gitRepoLocalRootPath)
+local file=.gitignore
+local gitignorefile="${repoRoot}/${file}"
+local criterias="$(echo "$@" | sort -u)"
+local data=$(cat ${gitignorefile} 2>/dev/null )
+local newline='
+'
+local newdata
+	[ -z "${data}" ] && echo "$@" >>"${gitignorefile}" && return $?
+	for c in ${criterias} ; do
+	 	! echo ${data} | egrep '^'"${c}"'$' >/dev/null && newdata="${newdata}${newline}${c}" || echo "INFO: criteria: ${c} exist">&2 
+	done
+	echo "Added: ${newdata} ${newline} to ${gitignorefile}"
+	echo "${newdata}">>"${gitignorefile}" && return $?
 }
 ###
 isMemCacheAvailable(){
