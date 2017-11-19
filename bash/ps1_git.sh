@@ -31,6 +31,18 @@ EOF
 
 }
 ###
+error(){
+local r=$1
+local re='^-?[0-9]+$'
+
+   [[ $r =~ $re ]] && shift || r=1
+	echo "[ERROR] $@" >&2
+	return $r
+}
+info(){
+	echo "[INFO] $@" >&2
+}
+###
 memcache_help(){
 cat <<EOF
 
@@ -53,7 +65,7 @@ gitrmdeleted(){
 ###
 gitshowdifffiles(){
 local commit="$1"
-	[ "${commit}"x == x ] && commit="HEAD~0" && echo "INFO: you can set HEAD~n or commit id " >&2
+	[ "${commit}"x == x ] && commit="HEAD~0" && info "you can set HEAD~n or commit id " 
 	echo "Diff files in commit ${commit} "
 	git diff-tree --no-commit-id --name-only -r ${commit}
 }
@@ -69,7 +81,7 @@ local newline='
 local newdata
 	[ -z "${data}" ] && echo "$@" >>"${gitignorefile}" && return $?
 	for c in ${criterias} ; do
-	 	! echo ${data} | egrep '^'"${c}"'$' >/dev/null && newdata="${newdata}${newline}${c}" || echo "INFO: criteria: ${c} exist">&2 
+	 	! echo ${data} | egrep '^'"${c}"'$' >/dev/null && newdata="${newdata}${newline}${c}" || info "criteria: ${c} exist" 
 	done
 	echo "Added: ${newdata} ${newline} to ${gitignorefile}"
 	echo "${newdata}">>"${gitignorefile}" && return $?
@@ -146,9 +158,9 @@ addCacheToIgnoreFile(){
 	if ! grep '.git.cache' ${ignoreFile} >/dev/null 2>&1; then
 		echo ".git.cache" >>"${ignoreFile}"
 		command git add "${ignoreFile}"
-		echo "INFO: The cache was added to git ignore file."
+		info "The cache was added to git ignore file."
 	else
-		echo "INFO: The cache file is in the ignore file. Nothing to do."
+		info "The cache file is in the ignore file. Nothing to do."
 	fi
 }
 ###
@@ -171,17 +183,17 @@ buildCacheBG(){
 ###
 setGitCacheBG(){
 export GITCACHEBUILDBG=true
-echo "INFO: the cache build will be in bg,  change  use 'setGitCacheFG'"
+info "the cache build will be in bg,  change  use 'setGitCacheFG'"
 }
 setGitCacheFG(){
 export GITCACHEBUILDBG=false
-echo "INFO: the cache build will be in fg,  change  use 'setGitCacheBG'"
+info "the cache build will be in fg,  change  use 'setGitCacheBG'"
 }
 ###
 cd(){
 	command cd "$@" &&  \
 	if isGitCacheEnable && [ "$PWD"x == "$(gitRepoLocalRootPath)"x ]; then
-		echo "INFO: updating the cache status in background each time the root of the repo is accesed. Use 'setGitCacheFG' to disable "
+		info "updating the cache status in background each time the root of the repo is accesed. Use 'setGitCacheFG' to disable "
 		buildCacheBG $(gitCache) 
 	fi
 }
@@ -231,7 +243,8 @@ local cf="$(gitCache)"
 			## a commit related to the mantenance is not required
 		else
 			## forcing to update the cache
-			echo "ERROR: first commit all your changes."
+			error "first commit all your changes." ;
+			return 1;
 		fi
 		return
 	fi
@@ -250,7 +263,7 @@ if [ "${OLDPS1}"x != "$PS1"x ]; then
 	PS1=$OLDPS1;
 fi
 export GITCACHEENABLE=false;
-echo "INFO: use gitCacheEnable to set the git status format in the console."
+info "use gitCacheEnable to set the git status format in the console."
 }
 ###
 isGitCacheEnable(){
@@ -304,7 +317,7 @@ if [ "${OLDPS1}"x != "${PS1}"x ]; then
 fi
 export GITCACHEENABLE=true;
 #gitCacheBashVarEnable # don't work yet,  the bachground processing generates new shells
-echo "INFO: using $(gitCache)"
+info "using $(gitCache)"
 addCacheToIgnoreFile
 
 ## check if some color is set
@@ -331,7 +344,7 @@ else
 fi
 PS1="${PS1}"' '
 
-echo "INFO: use gitCacheDisable to disable this format and the use of status caching."
+info "use gitCacheDisable to disable this format and the use of status caching."
 }
 #############################################################################
 
