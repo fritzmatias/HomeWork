@@ -23,9 +23,10 @@ Performance
 gitCachePerformanceSLOW/gitCachePerformanceOK -- modifies when the cache is updated on git add and git rm
 
 git helper functions:
-gitrmdeleted 	-- celan the git stage area with the deleted files in multiple calls of 2500 files
-gitshowdifffiles [prev commit number] -- shows the files commited in the commit prevous
-gitignore <ignore criteria> -- adds the ignore criteria into the local repo .gitignore
+  gitrmdeleted 				-- celan the git stage area with the deleted files in multiple calls of 2500 files
+  gitshowdifffiles [prev commit number]	-- shows the files commited in the commit prevous
+  gitignore <ignore criteria>		-- adds the ignore criteria into the local repo .gitignore
+  gitclonefast <url>			-- clone a remote repo to a predefined directory
 
 EOF
 
@@ -85,6 +86,12 @@ local newdata
 	done
 	echo "Added: ${newdata} ${newline} to ${gitignorefile}"
 	echo "${newdata}">>"${gitignorefile}" && return $?
+}
+###
+gitclonefast(){
+local url="$1";shift
+
+	command git clone "${url}" $(urlPath "${url}"|sed -e 's/\//-/g;s/.git//g')
 }
 ###
 isMemCacheAvailable(){
@@ -188,6 +195,12 @@ info "the cache build will be in bg,  change  use 'setGitCacheFG'"
 setGitCacheFG(){
 export GITCACHEBUILDBG=false
 info "the cache build will be in fg,  change  use 'setGitCacheBG'"
+}
+###
+urlPath(){
+local url="$1";
+	## removes the protocol and domain
+	echo "${url}" | sed -e 's/^[a-zA-Z]\+\:\/\/[a-zA-Z0-9\.]\+\///g' 2>/dev/null
 }
 ###
 cd(){
