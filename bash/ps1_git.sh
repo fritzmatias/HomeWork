@@ -9,15 +9,16 @@
 ## 	execute the script inside the ~/.bashrc with: '. scriptName'
 
 ###
-usage(){
+usageOfGitCache(){
 cat <<EOF
 Info: 
-gitCache 	-- the current cache file used
+ gitCache 	-- the current cache file used
+ gitCacheUsage	-- This message
 
 Management : 
-gitCacheDisable/gitCacheEnable  -- enable disable the use of the cache, update & execution
-addCacheToIgnoreFile  		-- adds the cache to the ignore file only if is disk cache
-setGitCacheBG/setGitCacheFG 	-- modifies the execution of updates  
+ gitCacheDisable/gitCacheEnable  -- enable disable the use of the cache, update & execution
+ addCacheToIgnoreFile  		 -- adds the cache to the ignore file only if is disk cache
+ setGitCacheBG/setGitCacheFG 	 -- modifies the execution of updates  
 
 Performance 
 gitCachePerformanceSLOW/gitCachePerformanceOK -- modifies when the cache is updated on git add and git rm
@@ -25,7 +26,7 @@ gitCachePerformanceSLOW/gitCachePerformanceOK -- modifies when the cache is upda
 git helper functions:
   gitrmdeleted 				-- celan the git stage area with the deleted files in multiple calls of 2500 files
   gitshowdifffiles [prev commit number]	-- shows the files commited in the commit prevous
-  gitignore <ignore criteria>		-- adds the ignore criteria into the local repo .gitignore
+  gitignor <ignore criteria>		-- adds the ignore criteria into the local repo .gitignore
   gitclonefast <url>			-- clone a remote repo to a predefined directory
 
 EOF
@@ -48,13 +49,17 @@ memcache_help(){
 cat <<EOF
 
 For optimization as root create memory tmpfs and set the environment MEMCACHE variable
-		mkdir /memCache
-		chmod 777 /memCache
-		mount -t tmpfs none -o size=5m /memCache
+		mkdir \${MEMCACHE}
+		chmod 1777 \${MEMCACHE}
+		mount -t tmpfs none -o size=5m \${MEMCACHE}
+
+or add a line into /etc/fstab
+i.e. if MEMCACHE=/tmp as tmpfs in /etc/fstab
+tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,noexec,mode=1777,size=512M 0 0
 
 EOF
 }
-[ -z "$MEMCACHE" ] && export MEMCACHE=/memCache
+[ -z "$MEMCACHE" ] && export MEMCACHE=/tmp
 ###
 gitrmdeleted(){
  command cd $(gitRepoLocalRootPath)
@@ -66,7 +71,7 @@ gitrmdeleted(){
 ###
 gitshowdifffiles(){
 local commit="$1"
-	[ "${commit}"x == x ] && commit="HEAD~0" && info "you can set HEAD~n or commit id " 
+	[ "${commit}"x == x ] && commit="HEAD~0" && info "you can set HEAD~n or commit id, HEAD~0 is the current commit" 
 	echo "Diff files in commit ${commit} "
 	git diff-tree --no-commit-id --name-only -r ${commit}
 }
@@ -361,7 +366,7 @@ info "use gitCacheDisable to disable this format and the use of status caching."
 }
 #############################################################################
 
-usage
+usageOfGitCache
 ! isMemCacheAvailable && memcache_help 
 gitCachePerformanceOK
 setGitCacheFG
