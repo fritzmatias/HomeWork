@@ -96,7 +96,7 @@ local newdata
 gitclonefast(){
 local url="$1";shift
 
-	command git clone "${url}" $(urlPath "${url}"|sed -e 's/\//-/g;s/.git//g')
+	command git clone "${url}" $(urlPath "${url}"|sed -e 's/\//-/g;s/.git|@//g')
 }
 ###
 isMemCacheAvailable(){
@@ -205,7 +205,8 @@ info "the cache build will be in fg,  change  use 'setGitCacheBG'"
 urlPath(){
 local url="$1";
 	## removes the protocol and domain
-	echo "${url}" | sed -e 's/^[a-zA-Z]\+\:\/\/[a-zA-Z0-9\.]\+\///g' 2>/dev/null
+	#echo "${url}" | sed -e 's/^[a-zA-Z]\+\:\/\/[a-zA-Z0-9\.]\+\///g' 2>/dev/null
+	echo "${url}" | sed -e 's/(^[a-zA-Z]+://)?([a-zA-Z0-9.:@]+)?([a-zA-Z0-9.]+/)//g' 2>/dev/null
 }
 ###
 cd(){
