@@ -61,6 +61,15 @@ EOF
 }
 [ -z "$MEMCACHE" ] && export MEMCACHE=/tmp
 ###
+gitBranchTree(){
+ command cd $(gitRepoLocalRootPath)
+ git log --graph --color --decorate --oneline --all
+}
+gitBranchTreeDetailed(){
+ command cd $(gitRepoLocalRootPath)
+ git log --graph --color --decorate --all
+}
+###
 gitrmdeleted(){
  command cd $(gitRepoLocalRootPath)
  local files=$(git ls-files --deleted)
