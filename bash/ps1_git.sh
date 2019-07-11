@@ -336,8 +336,7 @@ export CUSTOM='\n'
 gitCacheEnable(){
 if isGitCacheEnable; then
 	# fix multiple calls to this function
-	echo "WARNING: calling multiple times to gitCacheEnable. Aborting action."
-	return;
+	echo "WARNING: calling multiple times to gitCacheEnable."
 fi
 
 if [ "${OLDPS1}"x != "${PS1}"x ]; then
@@ -350,7 +349,7 @@ addCacheToIgnoreFile
 
 ## check if some color is set
 if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
-#       PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$'
+        PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
         PS1="${PS1}"\
 "\$( [ "${GITCACHEENABLE}"x == truex ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
@@ -360,7 +359,7 @@ if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
   fi)'\[\033[01;30m\]${CUSTOM} $(ps1_cmdLineChar)\[\033[00m\] ')";
 
 else
-#       PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$'
+       PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
         PS1="${PS1}"\
 "\$( [ "$GITCACHEENABLE"x == "true"x ] && isGitRepo && echo \$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
   cachefile=\$(gitCache) &&\
