@@ -45,7 +45,7 @@ info(){
 	echo "[INFO] $@" >&2
 }
 debug(){
-  [ "$DEBUG" == "true" ] && echo "[DEBUG] $@ ">&2
+  [ "$DEBUG" == "true" ] && echo "[DEBUG] $@ " >&2
 }
 ###
 memcache_help(){
@@ -88,15 +88,15 @@ local commit="$1"
 	git diff-tree --no-commit-id --name-only -r ${commit}
 }
 ###
-gitParent(){
-local i=1;
+gitBranchParent(){
+local i=0;
 local res=; 
-while [ -z "$res" ] ; do 
-    res=$(git branch --contains HEAD~$i |grep -v $(gitCurrentBranch)); 
-    debug "checking which branch contains HEAD~$i - $res "; 
+local maxLog=$(command git log --oneline|wc -l)
+while [ -z "$res" ] && [ $i -lt $maxLog ] ; do 
     i=$(($i+1)); 
+    res=$(git branch --contains HEAD~$i 2>/dev/null|grep -v $(gitCurrentBranch) 2>/dev/null ); 
+    debug "checking which branch contains HEAD~$i - $res - $maxLog "; 
 done
-
 echo "$res"
 }
 ###
@@ -350,6 +350,16 @@ ps1_cmdLineChar(){
     else
       echo '$'
     fi
+}
+###
+ps1_showBranch(){
+GIT_BRANCH_PARENT=$(gitBranchParent)
+GIT_BRANCH_CURRENT=$(gitCurrentBranch)
+  if [ "$GIT_BRANCH_PARENT" ]; then 
+	echo "$GIT_BRANCH_PARENT->$GIT_BRANCH_CURRENT"
+  else
+	echo '*'"$GIT_BRANCH_CURRENT"
+  fi
 }
 ###
 export CUSTOM='\n'
