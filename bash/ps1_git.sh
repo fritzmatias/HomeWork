@@ -92,12 +92,16 @@ gitBranchParent(){
 local i=0;
 local res=; 
 local maxLog=$(command git log --oneline|wc -l)
-while [ -z "$res" ] && [ $i -lt $maxLog ] ; do 
+while ( [ -z "$res" ] || [ "$1"x = "all"x ] ) && [ $i -lt $maxLog ] ; do 
     i=$(($i+1)); 
     res=$(git branch --contains HEAD~$i 2>/dev/null|grep -v $(gitCurrentBranch) 2>/dev/null ); 
     debug "checking which branch contains HEAD~$i - $res - $maxLog "; 
 done
 echo "$res"
+}
+###
+gitMergeStatus(){
+  command git branch --merged | awk '{print $1}' | grep -v '*' | xargs 
 }
 ###
 gitignore(){
@@ -353,12 +357,12 @@ ps1_cmdLineChar(){
 }
 ###
 ps1_showBranch(){
-GIT_BRANCH_PARENT=$(gitBranchParent)
+GIT_BRANCH_PARENT=$(gitMergeStatus)
 GIT_BRANCH_CURRENT=$(gitCurrentBranch)
   if [ "$GIT_BRANCH_PARENT" ]; then 
-	echo "$GIT_BRANCH_PARENT->$GIT_BRANCH_CURRENT"
+	  echo "($GIT_BRANCH_PARENT) $GIT_BRANCH_CURRENT"
   else
-	echo '*'"$GIT_BRANCH_CURRENT"
+	echo "$GIT_BRANCH_CURRENT"
   fi
 }
 ###
@@ -381,7 +385,7 @@ addCacheToIgnoreFile
 if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
         PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
         PS1="${PS1}"\
-"\$( [ "${GITCACHEENABLE}"x == truex ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(gitCurrentBranch) &&\
+"\$( [ "${GITCACHEENABLE}"x == truex ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(ps1_showBranch) &&\
   cachefile=\$(gitCache) &&\
   if ! isRepoCommited \${cachefile}  ;then\
          echo '\[\033[01;31m\]'\$(ps1_showUnsync \${cachefile} );\
