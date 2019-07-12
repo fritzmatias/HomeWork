@@ -44,6 +44,9 @@ local re='^-?[0-9]+$'
 info(){
 	echo "[INFO] $@" >&2
 }
+debug(){
+  [ "$DEBUG" == "true" ] && echo "[DEBUG] $@ ">&2
+}
 ###
 memcache_help(){
 cat <<EOF
@@ -83,6 +86,18 @@ local commit="$1"
 	[ "${commit}"x == x ] && commit="HEAD~0" && info "you can set HEAD~n or commit id, HEAD~0 is the current commit" 
 	echo "Diff files in commit ${commit} "
 	git diff-tree --no-commit-id --name-only -r ${commit}
+}
+###
+gitParent(){
+local i=1;
+local res=; 
+while [ -z "$res" ] ; do 
+    res=$(git branch --contains HEAD~$i |grep -v $(gitCurrentBranch)); 
+    debug "checking which branch contains HEAD~$i - $res "; 
+    i=$(($i+1)); 
+done
+
+echo "$res"
 }
 ###
 gitignore(){
@@ -164,6 +179,11 @@ gitMemCache(){
 isGitRepo(){
   git branch >/dev/null 2>/dev/null 
   return $?
+}
+###
+isNotMergeInProgress(){
+ git merge HEAD >/dev/null 2>/dev/null
+ return $?
 }
 ###
 gitCurrentBranch(){
