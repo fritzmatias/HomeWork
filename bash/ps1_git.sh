@@ -85,7 +85,7 @@ gitshowdifffiles(){
 local commit="$1"
 	[ "${commit}"x == x ] && commit="HEAD~0" && info "you can set HEAD~n or commit id, HEAD~0 is the current commit" 
 	echo "Diff files in commit ${commit} "
-	git diff-tree --no-commit-id --name-only -r ${commit}
+	git diff-tree --no-commit-id --name-status -r ${commit} 
 }
 ###
 gitBranchParent(){
