@@ -385,7 +385,7 @@ addCacheToIgnoreFile
 if echo "$PS1" | grep '\\\[\\033\[' >/dev/null 2>&1 ; then
         PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
         PS1="${PS1}"\
-"\$( [ "${GITCACHEENABLE}"x == truex ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo \$(ps1_showBranch) &&\
+"\$( [ "${GITCACHEENABLE}"x == truex ] && isGitRepo && echo '\[\033[01;30m\]'\$(ps1_gitType)':'\$(ps1_showOrigin)' : '\$(echo '\[\033[01;32m\]'\$(ps1_showBranch)'\[\033[00m\]' &&\
   cachefile=\$(gitCache) &&\
   if ! isRepoCommited \${cachefile}  ;then\
          echo '\[\033[01;31m\]'\$(ps1_showUnsync \${cachefile} );\
